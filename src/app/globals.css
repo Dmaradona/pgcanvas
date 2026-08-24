@@ -1,0 +1,238 @@
+@import "tailwindcss";
+
+@theme {
+  --color-paper: #e9eef3;
+  --color-surface: #ffffff;
+  --color-surface-2: #f4f7fa;
+  --color-surface-3: #e6ecf2;
+  --color-ink: #16212c;
+  --color-ink-soft: #5b6b7b;
+  --color-ink-faint: #8798a8;
+  --color-line: #d3dde6;
+  --color-line-strong: #b6c4d1;
+
+  --color-elephant: #2f6690;
+  --color-elephant-soft: #dbe8f2;
+  --color-brass: #a8760d;
+  --color-brass-soft: #f6ecd6;
+  --color-violet: #6247aa;
+  --color-violet-soft: #e8e3f6;
+  --color-dado: #10715a;
+  --color-dado-soft: #d8ece6;
+  --color-alerta: #a83a2a;
+  --color-alerta-soft: #f7e2de;
+
+  --font-display: var(--font-space-grotesk), system-ui, sans-serif;
+  --font-body: var(--font-plex), system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+
+  --radius-card: 10px;
+}
+
+@layer base {
+  * {
+    border-color: var(--color-line);
+  }
+
+  html,
+  body {
+    height: 100%;
+  }
+
+  body {
+    font-family: var(--font-body);
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font-size: 14px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.015em;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-elephant);
+    outline-offset: 2px;
+  }
+
+  input,
+  select,
+  textarea {
+    font-family: inherit;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-line-strong);
+    border-radius: 6px;
+    border: 3px solid transparent;
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+@layer components {
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-ink-faint);
+  }
+
+  .panel {
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-card);
+  }
+
+  .field-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--color-ink-soft);
+    margin-bottom: 4px;
+  }
+
+  .field {
+    width: 100%;
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: 6px;
+    padding: 7px 10px;
+    font-size: 13px;
+    color: var(--color-ink);
+    transition: border-color 120ms ease, box-shadow 120ms ease;
+  }
+
+  .field:hover {
+    border-color: var(--color-line-strong);
+  }
+
+  .field:focus {
+    outline: none;
+    border-color: var(--color-elephant);
+    box-shadow: 0 0 0 3px var(--color-elephant-soft);
+  }
+
+  .field-mono {
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Ajustes do React Flow                                               */
+/* ------------------------------------------------------------------ */
+
+.react-flow__attribution {
+  display: none;
+}
+
+.react-flow__handle {
+  width: 11px;
+  height: 11px;
+  border-radius: 999px;
+  border: 1.5px solid var(--color-line-strong);
+  background: var(--color-surface);
+  opacity: 0;
+  transition: opacity 120ms ease, transform 120ms ease;
+}
+
+.pgc-node:hover .react-flow__handle {
+  opacity: 1;
+}
+
+.react-flow__handle:hover {
+  background: var(--color-elephant);
+  border-color: var(--color-elephant);
+  transform: scale(1.3);
+}
+
+.react-flow__handle-left {
+  left: -6px;
+}
+
+.react-flow__handle-right {
+  right: -6px;
+}
+
+.react-flow__edge-path {
+  stroke: var(--color-line-strong);
+  stroke-width: 1.6;
+}
+
+.react-flow__edge.selected .react-flow__edge-path,
+.react-flow__edge:hover .react-flow__edge-path {
+  stroke: var(--color-elephant);
+  stroke-width: 2.2;
+}
+
+.react-flow__node {
+  cursor: default;
+}
+
+.react-flow__controls-button {
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-line);
+  color: var(--color-ink-soft);
+  width: 26px;
+  height: 26px;
+}
+
+.react-flow__controls-button:hover {
+  background: var(--color-surface-2);
+}
+
+.react-flow__minimap {
+  border: 1px solid var(--color-line);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Dados: destaque das linhas que acabaram de mudar                    */
+/* ------------------------------------------------------------------ */
+
+@keyframes pgc-flash {
+  0% {
+    background-color: var(--color-brass-soft);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+.pgc-flash {
+  animation: pgc-flash 1400ms ease-out;
+}
+
+/* a bolinha de conexao fica sempre visivel na coluna sob o cursor, para
+   nao obrigar o usuario a adivinhar de onde arrastar */
+.pgc-node .react-flow__handle {
+  opacity: 0;
+}
+
+.pgc-node li:hover .react-flow__handle,
+.pgc-node li:focus-within .react-flow__handle {
+  opacity: 1;
+}
