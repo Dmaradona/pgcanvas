@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Background,
   BackgroundVariant,
+  ConnectionMode,
   Controls,
   MiniMap,
   ReactFlow,
@@ -17,7 +18,7 @@ import {
 import "@xyflow/react/dist/style.css";
 import { Frame, Plus, Redo2, Undo2 } from "lucide-react";
 import { useStore } from "@/lib/store";
-import { TableNode, columnFromHandle, type TableNodeType } from "./TableNode";
+import { TableNode, columnFromHandle, handleId, type TableNodeType } from "./TableNode";
 import { CrowFootDefs, RelationEdge, type RelationEdgeType } from "./RelationEdge";
 import { Button, IconButton } from "@/components/ui/primitives";
 import { TEMPLATES } from "@/lib/samples";
@@ -110,8 +111,8 @@ function CanvasInner() {
           type: "relation" as const,
           source: relation.sourceTableId,
           target: relation.targetTableId,
-          sourceHandle: `${relation.sourceColumnId}|s|${side.from}`,
-          targetHandle: `${relation.targetColumnId}|t|${side.to}`,
+          sourceHandle: handleId(relation.sourceColumnId, side.from),
+          targetHandle: handleId(relation.targetColumnId, side.to),
           selected: active,
           // o React Flow ja embrulha o valor em url(#...), entao passamos so o id
           markerStart: `pgc-one-start${suffix}`,
@@ -163,7 +164,9 @@ function CanvasInner() {
       const sourceColumnId = columnFromHandle(connection.sourceHandle);
       const targetColumnId = columnFromHandle(connection.targetHandle);
       if (!sourceColumnId || !targetColumnId) return false;
+      // os dois lados da mesma coluna nao formam relacionamento
       if (sourceColumnId === targetColumnId) return false;
+      // uma coluna so recebe uma FK, senao o inspetor mostraria so a primeira
       const taken = diagram.relations.some(
         (relation) =>
           relation.targetTableId === connection.target &&
@@ -211,6 +214,9 @@ function CanvasInner() {
         onDoubleClick={onPaneDoubleClick}
         onConnect={onConnect}
         isValidConnection={isValidConnection}
+        // com um handle por lado, quem comeca o arrasto e a coluna
+        // referenciada e quem recebe o solto e a coluna que ganha a FK
+        connectionMode={ConnectionMode.Loose}
         connectionRadius={26}
         minZoom={0.2}
         maxZoom={2}

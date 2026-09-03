@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Split, Trash2 } from "lucide-react";
+import { ArrowLeftRight, ArrowRight, Split, Trash2 } from "lucide-react";
 import { useStore } from "@/lib/store";
 import type { Cardinality, FkAction, Relation } from "@/lib/types";
 import {
@@ -30,6 +30,7 @@ const CARDINALITY_HELP: Record<Cardinality, string> = {
 export function RelationEditor({ relation }: { relation: Relation }) {
   const diagram = useStore((state) => state.diagram);
   const updateRelation = useStore((state) => state.updateRelation);
+  const invertRelation = useStore((state) => state.invertRelation);
   const removeRelation = useStore((state) => state.removeRelation);
   const convertToAssociative = useStore((state) => state.convertToAssociative);
   const setSelection = useStore((state) => state.setSelection);
@@ -38,6 +39,14 @@ export function RelationEditor({ relation }: { relation: Relation }) {
   const child = diagram.tables.find((table) => table.id === relation.targetTableId);
   const parentColumn = parent?.columns.find((column) => column.id === relation.sourceColumnId);
   const childColumn = child?.columns.find((column) => column.id === relation.targetColumnId);
+
+  // inverter so vale se a coluna referenciada ainda nao recebe uma FK
+  const inversionBlocked = diagram.relations.some(
+    (item) =>
+      item.id !== relation.id &&
+      item.targetTableId === relation.sourceTableId &&
+      item.targetColumnId === relation.sourceColumnId,
+  );
 
   if (!parent || !child || !parentColumn || !childColumn) {
     return (
@@ -95,6 +104,21 @@ export function RelationEditor({ relation }: { relation: Relation }) {
             </button>
           </div>
         </div>
+
+        <Button
+          variant="subtle"
+          className="w-full"
+          disabled={inversionBlocked}
+          onClick={() => invertRelation(relation.id)}
+          title={
+            inversionBlocked
+              ? `${parent.name}.${parentColumn.name} já recebe outra FK`
+              : `Passa a FK para ${parent.name}.${parentColumn.name}`
+          }
+        >
+          <ArrowLeftRight size={14} />
+          Inverter direção
+        </Button>
 
         <Field label="Nome da constraint">
           <TextInput
