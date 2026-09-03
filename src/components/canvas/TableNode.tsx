@@ -18,9 +18,18 @@ export type TableNodeData = {
 
 export type TableNodeType = Node<TableNodeData, "table">;
 
-/** ids de handle carregam a coluna: colId|origem|lado */
-export function handleId(columnId: string, kind: "s" | "t", side: "l" | "r") {
-  return `${columnId}|${kind}|${side}`;
+/**
+ * ids de handle carregam a coluna: colId|lado.
+ *
+ * Cada coluna tem um unico ponto de conexao por lado, sempre do tipo source.
+ * Com dois handles empilhados no mesmo pixel quem decidia a direcao do
+ * relacionamento era o lado do card que o mouse pegou, e nao o gesto: puxar
+ * da esquerda para a direita marcava a PK do pai como FK (virava PFK). Com um
+ * handle por lado e connectionMode="loose" a direcao vem do gesto, sempre
+ * da coluna referenciada para a coluna que recebe a FK.
+ */
+export function handleId(columnId: string, side: "l" | "r") {
+  return `${columnId}|${side}`;
 }
 
 export function columnFromHandle(handle: string | null | undefined): string | null {
@@ -93,15 +102,9 @@ function TableNodeComponent({ data, selected }: NodeProps<TableNodeType>) {
               )}
             >
               <Handle
-                type="target"
-                position={Position.Left}
-                id={handleId(column.id, "t", "l")}
-                className="!top-1/2"
-              />
-              <Handle
                 type="source"
                 position={Position.Left}
-                id={handleId(column.id, "s", "l")}
+                id={handleId(column.id, "l")}
                 className="!top-1/2"
               />
 
@@ -142,13 +145,7 @@ function TableNodeComponent({ data, selected }: NodeProps<TableNodeType>) {
               <Handle
                 type="source"
                 position={Position.Right}
-                id={handleId(column.id, "s", "r")}
-                className="!top-1/2"
-              />
-              <Handle
-                type="target"
-                position={Position.Right}
-                id={handleId(column.id, "t", "r")}
+                id={handleId(column.id, "r")}
                 className="!top-1/2"
               />
             </li>

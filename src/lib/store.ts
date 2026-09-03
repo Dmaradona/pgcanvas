@@ -109,6 +109,8 @@ interface StoreState {
     targetColumnId: string;
   }) => void;
   updateRelation: (relationId: string, patch: Partial<Relation>) => void;
+  /** troca quem referencia por quem recebe a FK, sem refazer a ligacao */
+  invertRelation: (relationId: string) => void;
   removeRelation: (relationId: string) => void;
   convertToAssociative: (relationId: string) => void;
 
@@ -518,6 +520,69 @@ export const useStore = create<StoreState>()((set, get) => {
               },
         );
         return { ...draft, relations, tables };
+      }),
+
+    invertRelation: (relationId) =>
+      commit((draft) => {
+        const relation = draft.relations.find((item) => item.id === relationId);
+        if (!relation) return draft;
+        const oldChild = findTable(draft, relation.targetTableId);
+        const newChild = findTable(draft, relation.sourceTableId);
+        const newChildColumn = newChild?.columns.find(
+          (column) => column.id === relation.sourceColumnId,
+        );
+        if (!oldChild || !newChild || !newChildColumn) return draft;
+        // a coluna que vai passar a receber a FK precisa estar livre
+        const busy = draft.relations.some(
+          (item) =>
+            item.id !== relationId &&
+            item.targetTableId === relation.sourceTableId &&
+            item.targetColumnId === relation.sourceColumnId,
+        );
+        if (busy) return draft;
+
+        const inverted: Relation = {
+          ...relation,
+          sourceTableId: relation.targetTableId,
+          sourceColumnId: relation.targetColumnId,
+          targetTableId: relation.sourceTableId,
+          targetColumnId: relation.sourceColumnId,
+          identifying: newChildColumn.isPrimary,
+          // o nome so acompanha a virada enquanto for o automatico
+          name:
+            relation.name === `fk_${oldChild.name}_${newChild.name}`
+              ? `fk_${newChild.name}_${oldChild.name}`
+              : relation.name,
+        };
+        // a antiga filha so perde a marca de FK se nenhuma outra ligacao a usa
+        const stillForeign = draft.relations.some(
+          (item) =>
+            item.id !== relationId &&
+            item.targetTableId === relation.targetTableId &&
+            item.targetColumnId === relation.targetColumnId,
+        );
+
+        return {
+          ...draft,
+          relations: draft.relations.map((item) => (item.id === relationId ? inverted : item)),
+          tables: draft.tables.map((table) => {
+            const wasChild = table.id === relation.targetTableId;
+            const isChild = table.id === inverted.targetTableId;
+            if (!wasChild && !isChild) return table;
+            return {
+              ...table,
+              columns: table.columns.map((column) => {
+                if (wasChild && column.id === relation.targetColumnId && !stillForeign) {
+                  return { ...column, isForeign: false };
+                }
+                if (isChild && column.id === inverted.targetColumnId) {
+                  return applyKeyRole(column, inverted.identifying ? "pfk" : "fk");
+                }
+                return column;
+              }),
+            };
+          }),
+        };
       }),
 
     removeRelation: (relationId) => {

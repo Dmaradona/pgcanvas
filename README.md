@@ -37,7 +37,9 @@ O trabalho fica salvo no próprio navegador, sem conta e sem servidor. Para leva
 
 **Criar coluna**: o botão `+ Adicionar coluna` no pé do card, o `+` no cabeçalho do card, o `+` que aparece ao passar o mouse na lista lateral, ou o botão "Nova coluna" no painel da tabela. A coluna nova já nasce selecionada, com o editor aberto.
 
-**Criar relacionamento**: passe o mouse sobre a coluna que será referenciada (normalmente a PK), arraste da bolinha lateral até a coluna que vai receber a FK. A direção importa: sai do lado 1, chega no lado N.
+**Criar relacionamento**: passe o mouse sobre a coluna que será referenciada (normalmente a PK), arraste da bolinha lateral até a coluna que vai receber a FK. A direção importa: sai do lado 1, chega no lado N. Vale qualquer lado do card, porque a direção vem do gesto: quem começa o arrasto é a coluna referenciada.
+
+**Inverter relacionamento**: no painel do relacionamento, "Inverter direção" troca quem referencia por quem recebe a FK. Serve para consertar uma ligação feita ao contrário sem apagar e refazer, e devolve a marca de PK para a coluna que tinha virado PFK sem querer.
 
 **Editor de coluna** (clique numa coluna do card): o topo do painel mostra de cara o que a coluna é, com as etiquetas de chave, tipo, `NOT NULL`, `UNIQUE`, `IDENTITY`, `DEFAULT` e `CHECK`, mais a linha de DDL que ela vai gerar. Logo abaixo tem a navegação entre as colunas da tabela, sem precisar voltar para a lista.
 
